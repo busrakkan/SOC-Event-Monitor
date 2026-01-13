@@ -1,0 +1,12 @@
+2026-01-13 09:01:02 user=alice ip=192.168.1.10 status=success
+2026-01-13 09:05:12 user=bob ip=192.168.1.100 status=failed
+2026-01-13 09:06:15 user=bob ip=192.168.1.100 status=failed
+2026-01-13 09:07:20 user=bob ip=192.168.1.100 status=failed
+2026-01-13 09:08:25 user=bob ip=192.168.1.100 status=failed
+2026-01-13 10:15:05 user=carol ip=10.0.0.50 status=failed
+2026-01-13 10:17:30 user=carol ip=10.0.0.50 status=success
+2026-01-13 11:20:45 user=dave ip=192.168.1.12 status=success
+2026-01-13 11:45:10 user=alice ip=192.168.1.15 status=failed
+2026-01-13 12:00:00 user=alice ip=192.168.1.15 status=failed
+2026-01-13 12:05:12 user=alice ip=192.168.1.15 status=failed
+2026-01-13 12:10:30 user=alice ip=192.168.1.15 status=failed
