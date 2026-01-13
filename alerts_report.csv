@@ -6,3 +6,5 @@ Alert
 [MEDIUM] Suspicious login from IP 192.168.1.100 by user 'bob' at 2026-01-13 09:08:25
 [MEDIUM] Suspicious login from IP 10.0.0.50 by user 'carol' at 2026-01-13 10:15:05
 [MEDIUM] Suspicious login from IP 10.0.0.50 by user 'carol' at 2026-01-13 10:17:30
+[HIGH] Possible brute-force attempt: 3 failed logins for user 'bob' within 5 minutes from IP 192.168.1.100
+[HIGH] Possible brute-force attempt: 4 failed logins for user 'bob' within 5 minutes from IP 192.168.1.100

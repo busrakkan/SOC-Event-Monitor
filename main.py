@@ -1,6 +1,6 @@
 import csv
 from parser import parse_log_line
-from detection import detect_failed_logins, detect_brute_force
+from detection import detect_failed_logins, detect_brute_force_and_escalation
 import matplotlib.pyplot as plt
 
 LOG_FILE = "sample_logs.txt"
@@ -19,7 +19,7 @@ for e in events:
 
 # --- Detection ---
 alerts, failed_logins = detect_failed_logins(events)
-enhanced_alerts = detect_brute_force(events)
+enhanced_alerts = detect_brute_force_and_escalation(events)
 all_alerts = alerts + enhanced_alerts
 
 # --- Output Alerts ---
