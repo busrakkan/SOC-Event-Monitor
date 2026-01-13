@@ -2,6 +2,8 @@ import re
 from datetime import datetime
 import csv
 from collections import defaultdict
+from collections import deque
+from datetime import timedelta
 
 # Event Parsing & Collection
 
@@ -103,3 +105,36 @@ if failed_counts:
     plt.xticks(rotation=30)
     plt.tight_layout()
     plt.show()
+
+
+# --- Brute-force detection configuration ---
+WINDOW_MINUTES = 5
+FAIL_THRESHOLD = 3
+
+# Track recent failed logins per user
+recent_failures = defaultdict(lambda: deque())
+
+enhanced_alerts = []
+
+for event in events:
+    user = event["user"]
+    ip = event["ip"]
+    status = event["status"]
+    timestamp = event["timestamp"]
+
+    # Track failed logins in a rolling window
+    if status.lower() == "failed":
+        recent_failures[user].append(timestamp)
+
+        # Remove timestamps outside the window
+        while recent_failures[user] and timestamp - recent_failures[user][0] > timedelta(minutes=WINDOW_MINUTES):
+            recent_failures[user].popleft()
+
+        if len(recent_failures[user]) >= FAIL_THRESHOLD:
+            enhanced_alerts.append(
+                f"[HIGH] Possible brute-force detected: {len(recent_failures[user])} failed logins for user '{user}' within {WINDOW_MINUTES} minutes from IP {ip}"
+            )
+
+    # Optional: flag suspicious IPs
+    if ip in ["192.168.1.100", "10.0.0.50"]:
+        enhanced_alerts.append(f"[MEDIUM] Suspicious IP login attempt: {ip} by user '{user}' at {timestamp}")
