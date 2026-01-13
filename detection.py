@@ -1,4 +1,3 @@
-# detection.py
 from collections import defaultdict, deque
 from datetime import timedelta
 
