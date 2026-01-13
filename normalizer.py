@@ -1,6 +1,6 @@
 def normalize_event(raw_event):
     """
-    Convert raw parsed events into a normalized SOC event format
+    Normalize raw authentication events (generic or SSH)
     """
 
     if not raw_event:
@@ -14,5 +14,5 @@ def normalize_event(raw_event):
         "username": raw_event["user"],
         "event_type": "AUTH",
         "outcome": outcome,
-        "source": "GENERIC_AUTH"
+        "source": raw_event.get("source", "GENERIC_AUTH")
     }
