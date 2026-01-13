@@ -1,6 +1,6 @@
-import csv
 from parser import parse_log_line
 from detection import detect_failed_logins, detect_brute_force_and_escalation
+from alerts import print_alerts, save_alerts_to_csv
 import matplotlib.pyplot as plt
 
 LOG_FILE = "sample_logs.txt"
@@ -22,20 +22,9 @@ alerts, failed_logins = detect_failed_logins(events)
 enhanced_alerts = detect_brute_force_and_escalation(events)
 all_alerts = alerts + enhanced_alerts
 
-# --- Output Alerts ---
-print("\n=== ALERTS DETECTED ===")
-if all_alerts:
-    for alert in all_alerts:
-        print(alert)
-else:
-    print("No alerts detected.")
-
-# --- Save alerts to CSV ---
-with open("alerts_report.csv", "w", newline="") as csvfile:
-    writer = csv.writer(csvfile)
-    writer.writerow(["Alert"])
-    for alert in all_alerts:
-        writer.writerow([alert])
+# --- Output Alerts using alerts.py ---
+print_alerts(all_alerts)
+save_alerts_to_csv(all_alerts)
 
 # --- Visualization: Failed Logins per User ---
 users = [user for (user, _) in failed_logins.keys()]
