@@ -1,6 +1,9 @@
-# Phase 2: Event Parsing & Collection
 import re
 from datetime import datetime
+import csv
+from collections import defaultdict
+
+# Event Parsing & Collection
 
 LOG_FILE = "sample_logs.txt"
 
@@ -33,3 +36,52 @@ with open(LOG_FILE, "r") as f:
 print(f"Parsed {len(events)} events:")
 for e in events:
     print(e)
+
+
+# Anomaly Detection & Alerting
+
+# Configuration
+FAILED_LOGIN_THRESHOLD = 3
+SUSPICIOUS_IPS = ["192.168.1.100", "10.0.0.50"]
+
+# Track failed logins per user per hour
+failed_logins = defaultdict(list)
+alerts = []
+
+for event in events:
+    user = event["user"]
+    ip = event["ip"]
+    status = event["status"]
+    timestamp = event["timestamp"]
+
+    # --- Detect failed logins ---
+    if status.lower() == "failed":
+        # Round timestamp to hour for grouping
+        hour = timestamp.replace(minute=0, second=0)
+        failed_logins[(user, hour)].append(event)
+
+        if len(failed_logins[(user, hour)]) > FAILED_LOGIN_THRESHOLD:
+            alerts.append(
+                f"[HIGH] {len(failed_logins[(user, hour)])} failed logins for user '{user}' around {hour}"
+            )
+
+    # --- Detect suspicious IPs ---
+    if ip in SUSPICIOUS_IPS:
+        alerts.append(
+            f"[MEDIUM] Suspicious login from IP {ip} by user '{user}' at {timestamp}"
+        )
+
+# --- Output Alerts ---
+print("\n=== ALERTS DETECTED ===")
+if alerts:
+    for alert in alerts:
+        print(alert)
+else:
+    print("No alerts detected.")
+
+# --- Save alerts to CSV ---
+with open("alerts_report.csv", "w", newline="") as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(["Alert"])
+    for alert in alerts:
+        writer.writerow([alert])
