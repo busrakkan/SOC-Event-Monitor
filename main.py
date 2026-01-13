@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict, deque
 
 from alerts import create_alert, save_alerts_to_json, print_alerts
+from normalizer import normalize_event
 
 # ----------------------------
 # Configuration
@@ -16,12 +17,12 @@ FAIL_THRESHOLD = 5
 SUSPICIOUS_IPS = ["192.168.1.100", "10.0.0.50"]
 
 # ----------------------------
-# Event Parsing
+# Raw Log Parsing
 # ----------------------------
 
 def parse_log_line(line):
     """
-    Format:
+    Raw format:
     YYYY-MM-DD HH:MM:SS user=<username> ip=<ip> status=<success|failed>
     """
     try:
@@ -39,18 +40,25 @@ def parse_log_line(line):
         return None
 
 # ----------------------------
-# Load Events
+# Load & Normalize Events
 # ----------------------------
 
-events = []
+raw_events = []
+normalized_events = []
 
 with open(LOG_FILE, "r") as f:
     for line in f:
-        event = parse_log_line(line)
-        if event:
-            events.append(event)
+        raw = parse_log_line(line)
+        if raw:
+            raw_events.append(raw)
 
-print(f"Parsed {len(events)} events")
+for raw in raw_events:
+    normalized = normalize_event(raw)
+    if normalized:
+        normalized_events.append(normalized)
+
+print(f"Parsed {len(raw_events)} raw events")
+print(f"Normalized {len(normalized_events)} events")
 
 # ----------------------------
 # Detection & Aggregation
@@ -59,26 +67,25 @@ print(f"Parsed {len(events)} events")
 recent_failures_by_ip = defaultdict(lambda: deque())
 structured_alerts = []
 
-# Deduplication
 alerted_suspicious_ips = set()
 alerted_bruteforce_ips = set()
 
-# Summary aggregation
+# SOC summaries
 failures_per_ip = defaultdict(int)
 users_per_ip = defaultdict(set)
 event_counters = defaultdict(int)
 
-for event in events:
-    ip = event["ip"]
-    user = event["user"]
-    status = event["status"]
+for event in normalized_events:
+    ip = event["source_ip"]
+    user = event["username"]
+    outcome = event["outcome"]
     timestamp = event["timestamp"]
 
-    event_counters[status] += 1
+    event_counters[outcome] += 1
     users_per_ip[ip].add(user)
 
     # ---- Failed login tracking ----
-    if status == "failed":
+    if outcome == "FAILURE":
         failures_per_ip[ip] += 1
         recent_failures_by_ip[ip].append((timestamp, user))
 
@@ -93,8 +100,6 @@ for event in events:
             len(recent_failures_by_ip[ip]) >= FAIL_THRESHOLD
             and ip not in alerted_bruteforce_ips
         ):
-            start_time = recent_failures_by_ip[ip][0][0]
-
             structured_alerts.append(
                 create_alert(
                     severity="HIGH",
@@ -102,16 +107,15 @@ for event in events:
                     source_ip=ip,
                     username=user,
                     attempts=len(recent_failures_by_ip[ip]),
-                    start_time=start_time,
+                    start_time=recent_failures_by_ip[ip][0][0],
                     end_time=timestamp,
-                    description="Multiple failed logins detected"
+                    description="Multiple authentication failures detected"
                 )
             )
-
             alerted_bruteforce_ips.add(ip)
 
     # ---- Success after brute-force ----
-    if status == "success" and ip in recent_failures_by_ip:
+    if outcome == "SUCCESS" and ip in recent_failures_by_ip:
         failures = recent_failures_by_ip[ip]
 
         if len(failures) >= FAIL_THRESHOLD:
@@ -124,10 +128,9 @@ for event in events:
                     attempts=len(failures),
                     start_time=failures[0][0],
                     end_time=timestamp,
-                    description="Successful login after brute-force behavior"
+                    description="Successful authentication after brute-force activity"
                 )
             )
-
             recent_failures_by_ip[ip].clear()
 
     # ---- Suspicious IP ----
@@ -141,26 +144,26 @@ for event in events:
                 attempts=1,
                 start_time=timestamp,
                 end_time=timestamp,
-                description="Login from known suspicious IP"
+                description="Authentication attempt from suspicious IP"
             )
         )
         alerted_suspicious_ips.add(ip)
 
 # ----------------------------
-# Output Alerts
+# Output
 # ----------------------------
 
 print_alerts(structured_alerts)
 save_alerts_to_json(structured_alerts)
 
 # ----------------------------
-# SOC SUMMARY REPORT
+# SOC SUMMARY
 # ----------------------------
 
 print("\n=== SOC SUMMARY REPORT ===")
-print(f"Total events: {len(events)}")
-print(f"Successful logins: {event_counters['success']}")
-print(f"Failed logins: {event_counters['failed']}")
+print(f"Total events: {len(normalized_events)}")
+print(f"Successful logins: {event_counters['SUCCESS']}")
+print(f"Failed logins: {event_counters['FAILURE']}")
 
 print("\nTop IPs by failed attempts:")
 for ip, count in sorted(
