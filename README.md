@@ -6,7 +6,7 @@ This project is designed to demonstrate **Security Operations Center (SOC)** fun
 
 ---
 
-## 🔍 Project Overview
+## Project Overview
 
 SOC-Event-Monitor ingests authentication logs from multiple sources, normalizes them into a common event schema, applies rule-based detection logic, and generates structured alerts and summaries.
 
@@ -14,7 +14,7 @@ It is inspired by real SOC workflows and aligns with common **SSH brute-force de
 
 ---
 
-## 🧱 Architecture
+## Architecture
 
 ```
 Raw Logs
@@ -32,26 +32,10 @@ Raw Logs
 
 ---
 
-## 📁 Project Structure
 
-```
-SOC-Event-Monitor/
-│
-├── main.py            # Pipeline orchestration & detection logic
-├── alerts.py          # Structured alert model & output
-├── normalizer.py      # SIEM-style event normalization
-├── ssh_parser.py      # SSH auth.log parser
-├── sample_logs.txt    # Generic authentication logs
-├── ssh_auth.log       # Sample SSH authentication logs
-├── alerts.json        # Generated alerts (runtime output)
-└── .gitignore
-```
+## Detection Capabilities
 
----
-
-## 🚨 Detection Capabilities
-
-### ✅ Implemented Rules
+### Implemented Rules
 
 * **IP-based brute-force detection**
 
@@ -71,7 +55,7 @@ SOC-Event-Monitor/
 
 ---
 
-## 📊 SOC Summary Output
+## SOC Summary Output
 
 At runtime, the system produces:
 
@@ -84,7 +68,7 @@ This mirrors the **initial triage view** used by Tier-1 SOC analysts.
 
 ---
 
-## 📄 Alert Output Format
+## Alert Output Format
 
 Alerts are generated as **structured JSON**, suitable for SIEM ingestion:
 
@@ -104,7 +88,7 @@ Alerts are generated as **structured JSON**, suitable for SIEM ingestion:
 
 ---
 
-## ▶️ How to Run
+## How to Run
 
 ```bash
 python main.py
@@ -120,7 +104,7 @@ The script will:
 
 ---
 
-## 🎯 Learning Objectives
+## Learning Objectives
 
 This project demonstrates:
 
@@ -132,7 +116,7 @@ This project demonstrates:
 
 ---
 
-## 🚀 Future Improvements
+## Future Improvements
 
 * Web dashboard (Flask)
 * Configurable rules (YAML/JSON)
