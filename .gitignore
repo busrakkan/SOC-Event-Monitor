@@ -1,6 +1,4 @@
-# Byte-compiled / cache
 __pycache__/
 *.pyc
-# Generated CSV
 alerts_report.csv
 alerts.json
