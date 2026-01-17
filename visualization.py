@@ -49,7 +49,6 @@ def plot_ip_user_heatmap(events):
     """
     import numpy as np
 
-    # Build IP-user matrix
     ip_user_counts = defaultdict(lambda: defaultdict(int))
     users_set = set()
     ips_set = set()
@@ -70,7 +69,6 @@ def plot_ip_user_heatmap(events):
         for j, user in enumerate(users):
             matrix[i, j] = ip_user_counts[ip][user]
 
-    # Plot heatmap
     plt.figure(figsize=(8,6))
     plt.imshow(matrix, cmap="Reds", interpolation="nearest")
     plt.colorbar(label="Login Attempts")
