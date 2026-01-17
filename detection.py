@@ -2,11 +2,10 @@ from collections import defaultdict, deque
 from datetime import timedelta
 
 
-# ======================================================
-# USER-BASED DETECTION (SOC LOGIC)
-# ======================================================
 
-FAILED_LOGIN_THRESHOLD = 3  # per user per hour
+# USER-BASED DETECTION (SOC LOGIC)
+
+FAILED_LOGIN_THRESHOLD = 3 
 
 def detect_failed_logins(events):
     """
@@ -35,9 +34,7 @@ def detect_failed_logins(events):
     return alerts, failed_logins
 
 
-# ======================================================
 # USER-BASED BRUTE FORCE & ESCALATION (SOC LOGIC)
-# ======================================================
 
 WINDOW_MINUTES_USER = 5
 FAIL_THRESHOLD_USER = 3
@@ -78,9 +75,8 @@ def detect_brute_force_and_escalation(events):
     return alerts
 
 
-# ========================================================================
+
 # IP-BASED SSH-STYLE BRUTE FORCE DETECTION (SSH-style brute-force logic)
-# ========================================================================
 
 WINDOW_MINUTES_IP = 5
 FAIL_THRESHOLD_IP = 5  # common SSH default
