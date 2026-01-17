@@ -6,9 +6,6 @@ from alerts import create_alert, save_alerts_to_json, print_alerts
 from normalizer import normalize_event
 from ssh_parser import parse_ssh_auth_log
 
-# ----------------------------
-# Configuration
-# ----------------------------
 
 GENERIC_LOG_FILE = "sample_logs.txt"
 SSH_LOG_FILE = "ssh_auth.log"
@@ -18,9 +15,6 @@ FAIL_THRESHOLD = 5
 
 SUSPICIOUS_IPS = ["192.168.1.100", "10.0.0.50"]
 
-# ----------------------------
-# Generic Log Parser
-# ----------------------------
 
 def parse_generic_log(line):
     try:
@@ -38,9 +32,6 @@ def parse_generic_log(line):
     except Exception:
         return None
 
-# ----------------------------
-# Load Raw Events
-# ----------------------------
 
 raw_events = []
 
@@ -56,9 +47,6 @@ with open(SSH_LOG_FILE) as f:
         if evt:
             raw_events.append(evt)
 
-# ----------------------------
-# Normalize Events
-# ----------------------------
 
 normalized_events = [
     normalize_event(evt) for evt in raw_events if normalize_event(evt)
@@ -66,9 +54,6 @@ normalized_events = [
 
 print(f"Loaded {len(normalized_events)} normalized events")
 
-# ----------------------------
-# Detection Logic 
-# ----------------------------
 
 recent_failures_by_ip = defaultdict(lambda: deque())
 structured_alerts = []
@@ -132,9 +117,6 @@ for event in normalized_events:
             )
             recent_failures_by_ip[ip].clear()
 
-# ----------------------------
-# Output
-# ----------------------------
 
 print_alerts(structured_alerts)
 save_alerts_to_json(structured_alerts)
